@@ -18,8 +18,7 @@ public class Region {
     private Shape shape;
     public String name;
     public double minX, minY, maxX, maxY;
-    public int nbParts, nbPoints;
-    private ArrayList<Part> parts;
+
 
     public Region(int offset, int length, FileInputStream shapeFile) {
         this.offset = offset;
@@ -28,12 +27,15 @@ public class Region {
 
         ByteBuffer shapesHeaderBuffer = ByteBuffer.allocate(100);
         shapesHeaderBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        ShapeType type = ShapeType.fromInt(shapesHeaderBuffer.getInt(32));
-        this.shape = Shape.createShape(type, shapeFile, offset, length);
-
-        ByteBuffer recordBuffer = ByteBuffer.allocate(length);
-        recordBuffer.order(ByteOrder.LITTLE_ENDIAN);
         try {
+            shapeFile.getChannel().position(0);
+            shapeFile.read(shapesHeaderBuffer.array());
+            ShapeType type = ShapeType.fromInt(shapesHeaderBuffer.getInt(32));
+            ByteBuffer recordBuffer = ByteBuffer.allocate(length + 8);
+
+
+            recordBuffer.order(ByteOrder.LITTLE_ENDIAN);
+
             shapeFile.getChannel().position(offset);
             shapeFile.read(recordBuffer.array());
             recordBuffer.position(12);
@@ -42,10 +44,9 @@ public class Region {
             this.minY = recordBuffer.getDouble();
             this.maxX = recordBuffer.getDouble();
             this.maxY = recordBuffer.getDouble();
-            this.nbParts = recordBuffer.getInt();
-            this.nbPoints = recordBuffer.getInt();
+            this.shape = Shape.createShape(type, recordBuffer, offset, length);
 
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
@@ -61,6 +62,6 @@ public class Region {
             region.appendChild(e);
         }
 
-        doc.appendChild(region);
+        parent.appendChild(region);
     }
 }

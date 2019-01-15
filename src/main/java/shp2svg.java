@@ -25,6 +25,7 @@ import java.util.Comparator;
 
 public class shp2svg {
     public static void main(String[] args) {
+        String outputFile = "svgSample.svg";
         int outputWidth = 1280, outputHeight = 720;
         double outputRatio = (double)outputWidth / (double)outputHeight;
         String query[] = {"BRETAGNE"};
@@ -108,6 +109,16 @@ public class shp2svg {
 
             for(Region r : outputRegions) {
                 r.addToDoc(root);
+            }
+            try {
+                Transformer tr = TransformerFactory.newInstance().newTransformer();
+                tr.setOutputProperty(OutputKeys.INDENT, "yes");
+                tr.setOutputProperty(OutputKeys.METHOD, "xml");
+                tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+                tr.transform(new DOMSource(doc), new StreamResult(new FileOutputStream(outputFile)));
+            } catch (TransformerException|FileNotFoundException e) {
+                e.printStackTrace();
             }
 
             System.out.println("Done!");
