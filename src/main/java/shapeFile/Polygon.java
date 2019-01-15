@@ -9,11 +9,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Polygon extends Shape {
     private FileInputStream shapeFile;
-    private int offset, length;
+    private int offset;
+    private int length;
 
     Polygon(FileInputStream shapeFile, int offset, int length) {
         this.shapeFile = shapeFile;
@@ -29,6 +32,16 @@ public class Polygon extends Shape {
         try {
             shapeFile.getChannel().position(offset);
             shapeFile.read(shapeBuffer.array());
+
+            shapeBuffer.position(36);
+            int nbParts = shapeBuffer.getInt();
+            int nbPoints = shapeBuffer.getInt();
+            IntBuffer partsBuffer = shapeBuffer.slice().asIntBuffer();
+            partsBuffer.limit(nbParts);
+
+            for(int i = 0; i < nbParts; i++) {
+
+            }
 
         } catch(IOException e) {
             e.printStackTrace();
