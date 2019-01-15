@@ -12,75 +12,28 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 public class Polygon extends Shape {
-    private int id, length, nbParts, nbPoints;
-    private double minX, minY, maxX, maxY;
-    private int[] parts;
-    private Point[] points;
+    private FileInputStream shapeFile;
+    private int offset, length;
 
-    Polygon(int id, int length) {
-        this.id = id;
+    Polygon(FileInputStream shapeFile, int offset, int length) {
+        this.shapeFile = shapeFile;
+        this.offset = offset;
         this.length = length;
     }
 
     @Override
-    public void read(FileInputStream file) {
-        ByteBuffer bb = ByteBuffer.allocate(length);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-
+    public ArrayList<Element> getSvgElement(Document doc) {
+        ArrayList<Element> parts = new ArrayList<>();
+        ByteBuffer shapeBuffer = ByteBuffer.allocate(length);
+        shapeBuffer.order(ByteOrder.LITTLE_ENDIAN);
         try {
-            file.read(bb.array());
+            shapeFile.getChannel().position(offset);
+            shapeFile.read(shapeBuffer.array());
 
-            ShapeType type = ShapeType.fromInt(bb.getInt());
-            minX = bb.getDouble();
-            minY = bb.getDouble();
-            maxX = bb.getDouble();
-            maxY = bb.getDouble();
-            nbParts = bb.getInt();
-            parts = new int[nbParts];
-            nbPoints = bb.getInt();
-            points = new Point[nbPoints];
-            for(int i = 0; i < nbParts; i++) {
-                parts[i] = bb.getInt();
-            }
-            for(int i = 0; bb.hasRemaining(); i++) {
-                points[i] = new Point(bb.getDouble(), bb.getDouble());
-            }
-
-            System.out.println(nbParts + ", " + nbPoints);
-
-
-
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
         }
-    }
 
-    @Override
-    public Element[] createElements(Document doc) {
-        Element[] els = new Element[nbParts];
-            int start, end;
-            String pointsAtt;
-            for (int i = 0; i < nbParts; i++) {
-                if (i < parts.length - 1) {
-                    start = parts[i];
-                    end = parts[i + 1] - 2;
-                } else {
-                    start = parts[i];
-                    end = points.length - 2;
-                }
-
-                pointsAtt = "";
-                for (int p = start; p <= end; p++) {
-                    pointsAtt += points[p].x + "," + (-points[p].y);
-                    if (p < end)
-                        pointsAtt += " ";
-                }
-
-                Element el = doc.createElement("polygon");
-                el.setAttribute("points", pointsAtt);
-
-                els[i] = el;
-            }
-        return els;
+        return parts;
     }
 }

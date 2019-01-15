@@ -1,22 +1,21 @@
 package main.java.shapeFile;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public abstract class Shape {
 
-    static public Shape createShape(ShapeType type, int id, int length) {
+    static public Shape createShape(ShapeType type, FileInputStream shapeFile, int offset, int length) {
         switch(type) {
             case POLYGON:
-                return  new Polygon(id, length);
+                return  new Polygon(shapeFile, offset, length);
             default:
                 return null;
         }
     }
 
-    public abstract void read (FileInputStream file);
-
-    public abstract Element[] createElements(Document doc);
+    abstract public ArrayList<Element> getSvgElement(Document doc);
 }

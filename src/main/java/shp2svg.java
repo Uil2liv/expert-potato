@@ -28,8 +28,8 @@ public class shp2svg {
         int outputWidth = 1280, outputHeight = 720;
         double outputRatio = (double)outputWidth / (double)outputHeight;
         String query[] = {"BRETAGNE"};
-        //String sourceFolder = "D:\\Users\\Yvonnick\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
-        String sourceFolder = "C:\\Users\\VSHD3626\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
+        String sourceFolder = "D:\\Users\\Yvonnick\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
+        //String sourceFolder = "C:\\Users\\VSHD3626\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
         String dataSet = "REGION";
         String prefix = sourceFolder + dataSet;
         ArrayList<Region> regions = new ArrayList<>();
@@ -48,31 +48,17 @@ public class shp2svg {
             ByteBuffer indexBuffer = ByteBuffer.allocate(8);
             ByteBuffer semanticsBuffer = ByteBuffer.allocate(semLength);
             semanticsFile.getChannel().position(semOffset);
-            ByteBuffer shapeBuffer = ByteBuffer.allocate(52);
-            shapeBuffer.order(ByteOrder.LITTLE_ENDIAN);
-
 
             indexFile.skip(100);
             while(indexFile.read(indexBuffer.array()) != -1) {
                 indexBuffer.position(0);
-                shapeBuffer.position(12);
                 semanticsFile.read(semanticsBuffer.array());
 
-                Region region = new Region(indexBuffer.getInt() * 2, indexBuffer.getInt() * 2);
+                Region region = new Region(indexBuffer.getInt() * 2, indexBuffer.getInt() * 2, shapesFile);
                 byte nameBytes[] = new byte[35];
                 semanticsBuffer.position(25);
                 semanticsBuffer.get(nameBytes, 0, 34);
                 region.name = new String(nameBytes, StandardCharsets.UTF_8).trim();
-
-                shapesFile.getChannel().position(region.offset);
-                shapesFile.read(shapeBuffer.array());
-
-                region.minX = shapeBuffer.getDouble();
-                region.minY = shapeBuffer.getDouble();
-                region.maxX = shapeBuffer.getDouble();
-                region.maxY = shapeBuffer.getDouble();
-                region.nbParts = shapeBuffer.getInt();
-                region.nbPoints = shapeBuffer.getInt();
 
                 regions.add(region);
             }
@@ -121,7 +107,7 @@ public class shp2svg {
             doc.appendChild(root);
 
             for(Region r : outputRegions) {
-                r.addToDoc(doc);
+                r.addToDoc(root);
             }
 
             System.out.println("Done!");
@@ -129,6 +115,7 @@ public class shp2svg {
             e.printStackTrace();
         }
     }
+    /*
     public static void convertShapeFile() {
         FileInputStream inFile;
         try  {
@@ -219,4 +206,5 @@ public class shp2svg {
             e.printStackTrace();
         }
     }
+    */
 }
