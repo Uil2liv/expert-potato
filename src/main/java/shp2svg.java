@@ -29,8 +29,8 @@ public class shp2svg {
         int outputWidth = 1280, outputHeight = 720;
         double outputRatio = (double)outputWidth / (double)outputHeight;
         String query[] = {"BRETAGNE"};
-        String sourceFolder = "D:\\Users\\Yvonnick\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
-        //String sourceFolder = "C:\\Users\\VSHD3626\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
+        //String sourceFolder = "D:\\Users\\Yvonnick\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
+        String sourceFolder = "C:\\Users\\VSHD3626\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
         String dataSet = "REGION";
         String prefix = sourceFolder + dataSet;
         ArrayList<Region> regions = new ArrayList<>();

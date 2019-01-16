@@ -62,7 +62,7 @@ public class Polygon extends Shape {
                     points += -p.buffer.get();
                 }
 
-                if(p.buffer.position() < p.buffer.capacity() - 3) {
+                if(p.buffer.position() < p.buffer.capacity() - 2) {
                     points += " ";
                 }
             }
