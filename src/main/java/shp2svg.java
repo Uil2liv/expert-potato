@@ -26,7 +26,7 @@ import java.util.Comparator;
 public class shp2svg {
     public static void main(String[] args) {
         String outputFile = "svgSample.svg";
-        int outputWidth = 1280, outputHeight = 720;
+        int outputWidth = 3840, outputHeight = 2160;
         double outputRatio = (double)outputWidth / (double)outputHeight;
         String query[] = {"BRETAGNE"};
         //String sourceFolder = "D:\\Users\\Yvonnick\\Downloads\\ADMIN-EXPRESS_2-0__SHP__FRA_2018-12-17\\ADMIN-EXPRESS\\1_DONNEES_LIVRAISON_2018-12-17\\ADE_2-0_SHP_LAMB93_FR\\";
@@ -64,35 +64,50 @@ public class shp2svg {
                 regions.add(region);
             }
 
-            ArrayList<Region> outputRegions = new ArrayList<>();
+            ArrayList<Region> queryRegions = new ArrayList<>();
             for(Region r : regions) {
                 if(Arrays.stream(query).anyMatch(r.name::equals)) {
-                    outputRegions.add(r);
+                    queryRegions.add(r);
                 }
             }
 
-            double minX = outputRegions.stream().map(region -> region.minX).min(Comparator.comparing(Double::doubleValue)).get();
-            double minY = outputRegions.stream().map(region -> region.minY).min(Comparator.comparing(Double::doubleValue)).get();
-            double maxX = outputRegions.stream().map(region -> region.maxX).max(Comparator.comparing(Double::doubleValue)).get();
-            double maxY = outputRegions.stream().map(region -> region.maxY).max(Comparator.comparing(Double::doubleValue)).get();
+            double minX = queryRegions.stream().map(region -> region.minX).min(Comparator.comparing(Double::doubleValue)).get();
+            double minY = queryRegions.stream().map(region -> region.minY).min(Comparator.comparing(Double::doubleValue)).get();
+            double maxX = queryRegions.stream().map(region -> region.maxX).max(Comparator.comparing(Double::doubleValue)).get();
+            double maxY = queryRegions.stream().map(region -> region.maxY).max(Comparator.comparing(Double::doubleValue)).get();
             
             double width = maxX - minX;
             double height = maxY - minY;
             double aspectRatio = width / height;
 
-            double viewBoxWidth, viewBoxHeight, viewBoxX, viewBoxY;
+            double viewBoxWidth, viewBoxHeight;
+            double outMinX, outMaxX, outMinY, outMaxY;
             if(aspectRatio < outputRatio) {
                 viewBoxWidth = height * outputRatio;
                 viewBoxHeight = height;
-                viewBoxX = minX - (viewBoxWidth - width) / 2;
-                viewBoxY = -maxY;
+                outMinX = minX - (viewBoxWidth - width) / 2;
+                outMinY = minY;
             } else {
                 viewBoxWidth = width;
                 viewBoxHeight = width / outputRatio;
-                viewBoxX = minX;
-                viewBoxY = -maxY - (viewBoxHeight - height) / 2;
+                outMinX = minX;
+                outMinY = minY - (viewBoxHeight - height) / 2;
+
             }
+            outMaxX = minX + viewBoxWidth;
+            outMaxY = minY + viewBoxHeight;
+
+            double viewBoxX = outMinX;
+            double viewBoxY = -outMaxY;
             String viewBox = viewBoxX + " " + viewBoxY + " " + viewBoxWidth + " " + viewBoxHeight;
+
+            //Get regions visible in the target viewBox
+            ArrayList<Region> outputRegions = new ArrayList<>();
+            for(Region r : regions) {
+                if(!(r.maxX < outMinX || r.minX > outMaxX || r.maxY < outMinY || r.minY > outMaxY)) {
+                    outputRegions.add(r);
+                }
+            }
 
             Document doc;
             DocumentBuilderFactory  dbf = DocumentBuilderFactory.newInstance();
